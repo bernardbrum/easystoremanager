@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as SlugIndexRouteImport } from './routes/$slug.index'
 import { Route as SlugAvaliarRouteImport } from './routes/$slug.avaliar'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardVitrineRouteImport } from './routes/dashboard.vitrine'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,17 +41,24 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardVitrineRoute = DashboardVitrineRouteImport.update({
+  id: '/vitrine',
+  path: '/vitrine',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/$slug/avaliar': typeof SlugAvaliarRoute
+  '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug/': typeof SlugIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$slug/avaliar': typeof SlugAvaliarRoute
+  '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug': typeof SlugIndexRoute
   '/dashboard': typeof DashboardIndexRoute
 }
@@ -59,19 +67,27 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/$slug/avaliar': typeof SlugAvaliarRoute
+  '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug/': typeof SlugIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/$slug/avaliar' | '/$slug/' | '/dashboard/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/$slug/avaliar'
+    | '/dashboard/vitrine'
+    | '/$slug/'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$slug/avaliar' | '/$slug' | '/dashboard'
+  to: '/' | '/$slug/avaliar' | '/dashboard/vitrine' | '/$slug' | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/$slug/avaliar'
+    | '/dashboard/vitrine'
     | '/$slug/'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
@@ -120,14 +136,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/vitrine': {
+      id: '/dashboard/vitrine'
+      path: '/vitrine'
+      fullPath: '/dashboard/vitrine'
+      preLoaderRoute: typeof DashboardVitrineRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
+  DashboardVitrineRoute: typeof DashboardVitrineRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardVitrineRoute: DashboardVitrineRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 

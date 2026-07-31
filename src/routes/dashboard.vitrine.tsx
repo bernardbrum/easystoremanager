@@ -51,9 +51,10 @@ const emptyProduct: Product = {
   description: "",
   price: 0,
   category: categories[0],
-  image: mockProducts[0].image,
+  image: mockProducts[0]?.image ?? "",
   visible: true,
 };
+
 
 function VitrinePage() {
   const [storeForm, setStoreForm] = useState({
