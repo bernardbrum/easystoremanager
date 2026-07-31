@@ -16,6 +16,7 @@ import { Route as SlugAvaliarRouteImport } from './routes/$slug.avaliar'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardArtesRouteImport } from './routes/dashboard.artes'
 import { Route as DashboardAvaliacoesRouteImport } from './routes/dashboard.avaliacoes'
+import { Route as DashboardEstrategiasRouteImport } from './routes/dashboard.estrategias'
 import { Route as DashboardVitrineRouteImport } from './routes/dashboard.vitrine'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +54,11 @@ const DashboardAvaliacoesRoute = DashboardAvaliacoesRouteImport.update({
   path: '/avaliacoes',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardEstrategiasRoute = DashboardEstrategiasRouteImport.update({
+  id: '/estrategias',
+  path: '/estrategias',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardVitrineRoute = DashboardVitrineRouteImport.update({
   id: '/vitrine',
   path: '/vitrine',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/$slug/avaliar': typeof SlugAvaliarRoute
   '/dashboard/artes': typeof DashboardArtesRoute
   '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/estrategias': typeof DashboardEstrategiasRoute
   '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug/': typeof SlugIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/$slug/avaliar': typeof SlugAvaliarRoute
   '/dashboard/artes': typeof DashboardArtesRoute
   '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/estrategias': typeof DashboardEstrategiasRoute
   '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug': typeof SlugIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/$slug/avaliar': typeof SlugAvaliarRoute
   '/dashboard/artes': typeof DashboardArtesRoute
   '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/estrategias': typeof DashboardEstrategiasRoute
   '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug/': typeof SlugIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/$slug/avaliar'
     | '/dashboard/artes'
     | '/dashboard/avaliacoes'
+    | '/dashboard/estrategias'
     | '/dashboard/vitrine'
     | '/$slug/'
     | '/dashboard/'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/$slug/avaliar'
     | '/dashboard/artes'
     | '/dashboard/avaliacoes'
+    | '/dashboard/estrategias'
     | '/dashboard/vitrine'
     | '/$slug'
     | '/dashboard'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/$slug/avaliar'
     | '/dashboard/artes'
     | '/dashboard/avaliacoes'
+    | '/dashboard/estrategias'
     | '/dashboard/vitrine'
     | '/$slug/'
     | '/dashboard/'
@@ -179,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAvaliacoesRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/estrategias': {
+      id: '/dashboard/estrategias'
+      path: '/estrategias'
+      fullPath: '/dashboard/estrategias'
+      preLoaderRoute: typeof DashboardEstrategiasRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/vitrine': {
       id: '/dashboard/vitrine'
       path: '/vitrine'
@@ -192,6 +211,7 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardArtesRoute: typeof DashboardArtesRoute
   DashboardAvaliacoesRoute: typeof DashboardAvaliacoesRoute
+  DashboardEstrategiasRoute: typeof DashboardEstrategiasRoute
   DashboardVitrineRoute: typeof DashboardVitrineRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
@@ -199,6 +219,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardArtesRoute: DashboardArtesRoute,
   DashboardAvaliacoesRoute: DashboardAvaliacoesRoute,
+  DashboardEstrategiasRoute: DashboardEstrategiasRoute,
   DashboardVitrineRoute: DashboardVitrineRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
