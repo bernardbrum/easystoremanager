@@ -129,7 +129,7 @@ function BioLinkPage() {
           <div className="absolute inset-0 bg-foreground/25" />
         </div>
 
-        <header className="-mt-12 px-5">
+        <header className="relative z-10 -mt-12 px-5">
           <div className="surface-card p-5">
             <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4">
               <img
