@@ -10,33 +10,134 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as SlugIndexRouteImport } from './routes/$slug.index'
+import { Route as SlugAvaliarRouteImport } from './routes/$slug.avaliar'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardArtesRouteImport } from './routes/dashboard.artes'
+import { Route as DashboardAvaliacoesRouteImport } from './routes/dashboard.avaliacoes'
+import { Route as DashboardEstrategiasRouteImport } from './routes/dashboard.estrategias'
+import { Route as DashboardVitrineRouteImport } from './routes/dashboard.vitrine'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SlugIndexRoute = SlugIndexRouteImport.update({
+  id: '/$slug/',
+  path: '/$slug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SlugAvaliarRoute = SlugAvaliarRouteImport.update({
+  id: '/$slug/avaliar',
+  path: '/$slug/avaliar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardArtesRoute = DashboardArtesRouteImport.update({
+  id: '/artes',
+  path: '/artes',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAvaliacoesRoute = DashboardAvaliacoesRouteImport.update({
+  id: '/avaliacoes',
+  path: '/avaliacoes',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardEstrategiasRoute = DashboardEstrategiasRouteImport.update({
+  id: '/estrategias',
+  path: '/estrategias',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardVitrineRoute = DashboardVitrineRouteImport.update({
+  id: '/vitrine',
+  path: '/vitrine',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/$slug/avaliar': typeof SlugAvaliarRoute
+  '/dashboard/artes': typeof DashboardArtesRoute
+  '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/estrategias': typeof DashboardEstrategiasRoute
+  '/dashboard/vitrine': typeof DashboardVitrineRoute
+  '/$slug/': typeof SlugIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$slug/avaliar': typeof SlugAvaliarRoute
+  '/dashboard/artes': typeof DashboardArtesRoute
+  '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/estrategias': typeof DashboardEstrategiasRoute
+  '/dashboard/vitrine': typeof DashboardVitrineRoute
+  '/$slug': typeof SlugIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/$slug/avaliar': typeof SlugAvaliarRoute
+  '/dashboard/artes': typeof DashboardArtesRoute
+  '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/estrategias': typeof DashboardEstrategiasRoute
+  '/dashboard/vitrine': typeof DashboardVitrineRoute
+  '/$slug/': typeof SlugIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/$slug/avaliar'
+    | '/dashboard/artes'
+    | '/dashboard/avaliacoes'
+    | '/dashboard/estrategias'
+    | '/dashboard/vitrine'
+    | '/$slug/'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/$slug/avaliar'
+    | '/dashboard/artes'
+    | '/dashboard/avaliacoes'
+    | '/dashboard/estrategias'
+    | '/dashboard/vitrine'
+    | '/$slug'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/$slug/avaliar'
+    | '/dashboard/artes'
+    | '/dashboard/avaliacoes'
+    | '/dashboard/estrategias'
+    | '/dashboard/vitrine'
+    | '/$slug/'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  SlugAvaliarRoute: typeof SlugAvaliarRoute
+  SlugIndexRoute: typeof SlugIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +149,91 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$slug/': {
+      id: '/$slug/'
+      path: '/$slug'
+      fullPath: '/$slug/'
+      preLoaderRoute: typeof SlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$slug/avaliar': {
+      id: '/$slug/avaliar'
+      path: '/$slug/avaliar'
+      fullPath: '/$slug/avaliar'
+      preLoaderRoute: typeof SlugAvaliarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/artes': {
+      id: '/dashboard/artes'
+      path: '/artes'
+      fullPath: '/dashboard/artes'
+      preLoaderRoute: typeof DashboardArtesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/avaliacoes': {
+      id: '/dashboard/avaliacoes'
+      path: '/avaliacoes'
+      fullPath: '/dashboard/avaliacoes'
+      preLoaderRoute: typeof DashboardAvaliacoesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/estrategias': {
+      id: '/dashboard/estrategias'
+      path: '/estrategias'
+      fullPath: '/dashboard/estrategias'
+      preLoaderRoute: typeof DashboardEstrategiasRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/vitrine': {
+      id: '/dashboard/vitrine'
+      path: '/vitrine'
+      fullPath: '/dashboard/vitrine'
+      preLoaderRoute: typeof DashboardVitrineRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardArtesRoute: typeof DashboardArtesRoute
+  DashboardAvaliacoesRoute: typeof DashboardAvaliacoesRoute
+  DashboardEstrategiasRoute: typeof DashboardEstrategiasRoute
+  DashboardVitrineRoute: typeof DashboardVitrineRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardArtesRoute: DashboardArtesRoute,
+  DashboardAvaliacoesRoute: DashboardAvaliacoesRoute,
+  DashboardEstrategiasRoute: DashboardEstrategiasRoute,
+  DashboardVitrineRoute: DashboardVitrineRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRouteWithChildren,
+  SlugAvaliarRoute: SlugAvaliarRoute,
+  SlugIndexRoute: SlugIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
