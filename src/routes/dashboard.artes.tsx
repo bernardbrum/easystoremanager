@@ -51,15 +51,17 @@ const templateStyles: Record<string, { wrapper: string; badge: string; accentTex
 function ArtesPage() {
   const [productId, setProductId] = useState(products[0]?.id ?? "");
   const [templateId, setTemplateId] = useState<string>(artTemplates[0].id);
-  const template =
-    artTemplates.find((t) => t.id === templateId) ?? artTemplates[0];
-  const [title, setTitle] = useState(artTemplates[0].defaultTitle);
-  const [callToAction, setCallToAction] = useState(artTemplates[0].defaultCallToAction);
+  const template = artTemplates.find((t) => t.id === templateId) ?? artTemplates[0];
+  const [title, setTitle] = useState<string>(artTemplates[0].defaultTitle);
+  const [callToAction, setCallToAction] = useState<string>(
+    artTemplates[0].defaultCallToAction,
+  );
   const [downloading, setDownloading] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const product = products.find((p) => p.id === productId) ?? products[0];
-  const styles = templateStyles[template.id] ?? templateStyles.oferta!;
+  const styles = templateStyles[template.id] ?? templateStyles["oferta"]!;
+
 
   const selectTemplate = (id: string) => {
     const next = artTemplates.find((t) => t.id === id);
