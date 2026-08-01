@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { CheckCircle2, ExternalLink, Star } from "lucide-react";
+import { CheckCircle2, Star } from "lucide-react";
 import { toast } from "sonner";
 
+import { StorageImage } from "@/components/storage-image";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,20 +14,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { store } from "@/data/mockData";
+import { usePublicStore, useSubmitReview } from "@/lib/db";
 
 export const Route = createFileRoute("/$slug/avaliar")({
-  head: () => ({
+  head: ({ params }) => ({
     meta: [
-      { title: `Avalie sua experiência — ${store.name}` },
+      { title: `Avaliar atendimento — ${params.slug} | EasyManager` },
       {
         name: "description",
-        content: `Conte em 10 segundos como foi sua visita ao ${store.name}. Sua opinião ajuda a melhorar nosso atendimento.`,
+        content:
+          "Conte como foi sua experiência na loja. Leva 10 segundos e ajuda muito o comércio do bairro.",
       },
-      { property: "og:title", content: `Avalie sua experiência — ${store.name}` },
+      { property: "og:title", content: `Avaliar atendimento — ${params.slug}` },
       {
         property: "og:description",
-        content: "Deixe sua nota de 1 a 5 estrelas e ajude nossa loja a melhorar.",
+        content: "Sua avaliação em 10 segundos ajuda a loja a melhorar.",
       },
     ],
   }),
@@ -34,133 +36,149 @@ export const Route = createFileRoute("/$slug/avaliar")({
 });
 
 function AvaliarPage() {
+  const { slug } = Route.useParams();
+  const { data: store, isLoading } = usePublicStore(slug);
+  const submit = useSubmitReview();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [sent, setSent] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [done, setDone] = useState(false);
 
-  const handleRate = (value: number) => {
+  const choose = async (value: number) => {
     setRating(value);
-    if (value < 5) {
-      setMessage("");
-      setSent(false);
-      setFeedbackOpen(true);
-    }
-  };
+    if (!store) return;
 
-  const submitFeedback = () => {
-    if (!message.trim()) {
-      toast.error("Escreva sua sugestão para enviarmos.");
+    if (value === 5) {
+      await submit.mutateAsync({ store_id: store.id, rating: value, feedback: "" });
+      if (store.google_review_url) {
+        window.open(store.google_review_url, "_blank", "noopener");
+        setDone(true);
+        return;
+      }
+      setDone(true);
+      toast.success("Obrigado pela avaliação!");
       return;
     }
-    setSent(true);
-    setFeedbackOpen(false);
-    toast.success("Feedback enviado. Obrigado por nos ajudar!");
+    setFeedbackOpen(true);
   };
 
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-5 py-14">
-      <div className="w-full max-w-md text-center">
-        <img
-          src={store.logo}
-          alt={`Logo ${store.name}`}
-          width={512}
-          height={512}
-          className="mx-auto size-24 rounded-3xl border border-border bg-card object-contain p-2"
-        />
-        <p className="mt-5 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-          {store.name}
-        </p>
-        <h1 className="mt-3 text-2xl leading-tight font-extrabold sm:text-3xl">
-          Como foi sua experiência conosco hoje?
-        </h1>
+  const sendFeedback = async () => {
+    if (!store) return;
+    if (feedback.trim().length < 3) {
+      toast.error("Conte rapidamente o que podemos melhorar");
+      return;
+    }
+    await submit.mutateAsync({ store_id: store.id, rating, feedback: feedback.trim() });
+    setFeedbackOpen(false);
+    setDone(true);
+  };
 
-        <div className="mt-8 flex justify-center gap-1.5" role="group" aria-label="Nota de 1 a 5">
-          {[1, 2, 3, 4, 5].map((value) => {
-            const filled = value <= (hover || rating);
-            return (
-              <button
-                key={value}
-                onClick={() => handleRate(value)}
-                onMouseEnter={() => setHover(value)}
-                onMouseLeave={() => setHover(0)}
-                aria-label={`${value} ${value === 1 ? "estrela" : "estrelas"}`}
-                className="p-1 transition-transform hover:scale-110"
-              >
-                <Star
-                  className={`size-11 sm:size-14 ${
-                    filled ? "fill-accent text-accent" : "text-border"
-                  }`}
-                  strokeWidth={1.5}
-                />
-              </button>
-            );
-          })}
+  if (isLoading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background">
+        <p className="text-sm text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
+
+  if (!store) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background px-6 text-center">
+        <div>
+          <h1 className="text-xl font-extrabold">Loja não encontrada</h1>
+          <Button asChild className="mt-6">
+            <Link to="/">Voltar ao início</Link>
+          </Button>
         </div>
+      </div>
+    );
+  }
 
-        {rating === 0 && (
-          <p className="mt-6 text-sm text-muted-foreground">
-            Toque nas estrelas para dar sua nota.
-          </p>
-        )}
+  return (
+    <div
+      className="flex min-h-screen items-center justify-center px-5 py-10"
+      style={{ backgroundColor: store.bg_color }}
+    >
+      <div className="w-full max-w-md">
+        <div className="surface-card p-6 text-center">
+          <StorageImage
+            path={store.logo_url}
+            alt={`Logo ${store.name}`}
+            className="mx-auto size-16 rounded-2xl border border-border bg-card object-contain p-1"
+          />
+          <h1 className="mt-4 text-xl font-extrabold">{store.name}</h1>
 
-        {rating === 5 && (
-          <div className="surface-card mt-8 p-6">
-            <p className="text-base font-bold">Que alegria! 🎉</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Sua avaliação no Google ajuda outros vizinhos a encontrarem a gente.
-            </p>
-            <Button asChild size="lg" className="mt-5 w-full">
-              <a href={store.googleReviewLink} target="_blank" rel="noopener noreferrer">
-                Avaliar no Google Maps
-                <ExternalLink className="size-4" />
-              </a>
-            </Button>
-          </div>
-        )}
-
-        {rating > 0 && rating < 5 && !sent && (
-          <div className="surface-card mt-8 p-6">
-            <p className="text-sm text-muted-foreground">
-              Queremos entender o que faltou para você.
-            </p>
-            <Button className="mt-4 w-full" onClick={() => setFeedbackOpen(true)}>
-              Contar o que podemos melhorar
-            </Button>
-          </div>
-        )}
-
-        {sent && (
-          <div className="surface-card mt-8 flex flex-col items-center p-6">
-            <CheckCircle2 className="size-10 text-primary" />
-            <p className="mt-3 text-base font-bold">Feedback recebido</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Sua mensagem foi enviada direto para o dono da loja. Obrigado pela sinceridade!
-            </p>
-          </div>
-        )}
+          {done ? (
+            <div className="mt-6">
+              <CheckCircle2 className="mx-auto size-12 text-success" />
+              <p className="mt-4 text-base font-bold">Obrigado pelo seu retorno!</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {rating === 5
+                  ? "Sua avaliação pública ajuda muito o comércio do bairro."
+                  : "Recebemos seu comentário em particular e vamos trabalhar nisso."}
+              </p>
+              <Button asChild variant="outline" className="mt-6">
+                <Link to="/$slug" params={{ slug }}>
+                  Ver a vitrine
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Como foi seu atendimento hoje? Toque em uma estrela.
+              </p>
+              <div className="mt-6 flex justify-center gap-1.5">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <button
+                    key={value}
+                    onMouseEnter={() => setHover(value)}
+                    onMouseLeave={() => setHover(0)}
+                    onClick={() => choose(value)}
+                    aria-label={`Dar nota ${value}`}
+                    className="p-1 transition-transform hover:scale-110"
+                  >
+                    <Star
+                      className={`size-9 ${
+                        value <= (hover || rating)
+                          ? "fill-warning text-warning"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              <p className="mt-6 text-xs text-muted-foreground">
+                Leva 10 segundos e faz toda a diferença para uma loja de bairro.
+              </p>
+            </>
+          )}
+        </div>
       </div>
 
       <Dialog open={feedbackOpen} onOpenChange={setFeedbackOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Como podemos melhorar?</DialogTitle>
+            <DialogTitle>O que podemos melhorar?</DialogTitle>
             <DialogDescription>
-              Este feedback é privado e vai apenas para a equipe da loja.
+              Seu comentário vai direto para o dono da loja — de forma privada.
             </DialogDescription>
           </DialogHeader>
           <Textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={5}
-            placeholder="Conte o que não saiu como você esperava..."
+            rows={4}
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            placeholder="Conte o que aconteceu..."
+            maxLength={800}
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setFeedbackOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={submitFeedback}>Enviar feedback</Button>
+            <Button onClick={sendFeedback} disabled={submit.isPending}>
+              Enviar em privado
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
