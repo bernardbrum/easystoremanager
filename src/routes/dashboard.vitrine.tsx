@@ -51,6 +51,17 @@ export const Route = createFileRoute("/dashboard/vitrine")({
   component: VitrinePage,
 });
 
+type StoreForm = {
+  name: string;
+  slug: string;
+  description: string;
+  whatsapp: string;
+  google_review_url: string;
+  pix_key: string;
+  business_hours: string;
+  bg_color: string;
+};
+
 type ProductForm = {
   id?: string;
   name: string;
@@ -82,7 +93,7 @@ function VitrinePage() {
   const catMutations = useCategoryMutations(store?.id);
   const productMutations = useProductMutations(store?.id);
 
-  const [form, setForm] = useState<Record<string, string> | null>(null);
+  const [form, setForm] = useState<StoreForm | null>(null);
   const [newCategory, setNewCategory] = useState("");
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("Todos");
@@ -100,7 +111,7 @@ function VitrinePage() {
     business_hours: store?.business_hours ?? "",
     bg_color: store?.bg_color ?? "#ffffff",
   };
-  const setValue = (key: string, value: string) => setForm({ ...values, [key]: value });
+  const setValue = (key: keyof StoreForm, value: string) => setForm({ ...values, [key]: value });
 
   const filtered = useMemo(
     () =>
@@ -117,14 +128,14 @@ function VitrinePage() {
   const saveStore = async () => {
     try {
       await updateStore.mutateAsync({
-        name: values.name!,
-        slug: slugify(values.slug!),
-        description: values.description!,
-        whatsapp: onlyDigits(values.whatsapp!),
-        google_review_url: values.google_review_url!,
-        pix_key: values.pix_key!,
-        business_hours: values.business_hours!,
-        bg_color: values.bg_color!,
+        name: values.name,
+        slug: slugify(values.slug),
+        description: values.description,
+        whatsapp: onlyDigits(values.whatsapp),
+        google_review_url: values.google_review_url,
+        pix_key: values.pix_key,
+        business_hours: values.business_hours,
+        bg_color: values.bg_color,
       });
       setForm(null);
       toast.success("Dados da loja atualizados");

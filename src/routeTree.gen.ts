@@ -17,6 +17,7 @@ import { Route as SlugAvaliarRouteImport } from './routes/$slug.avaliar'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardArtesRouteImport } from './routes/dashboard.artes'
 import { Route as DashboardAvaliacoesRouteImport } from './routes/dashboard.avaliacoes'
+import { Route as DashboardClientesRouteImport } from './routes/dashboard.clientes'
 import { Route as DashboardEstrategiasRouteImport } from './routes/dashboard.estrategias'
 import { Route as DashboardVitrineRouteImport } from './routes/dashboard.vitrine'
 
@@ -60,6 +61,11 @@ const DashboardAvaliacoesRoute = DashboardAvaliacoesRouteImport.update({
   path: '/avaliacoes',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardClientesRoute = DashboardClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardEstrategiasRoute = DashboardEstrategiasRouteImport.update({
   id: '/estrategias',
   path: '/estrategias',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/$slug/avaliar': typeof SlugAvaliarRoute
   '/dashboard/artes': typeof DashboardArtesRoute
   '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/clientes': typeof DashboardClientesRoute
   '/dashboard/estrategias': typeof DashboardEstrategiasRoute
   '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug/': typeof SlugIndexRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/$slug/avaliar': typeof SlugAvaliarRoute
   '/dashboard/artes': typeof DashboardArtesRoute
   '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/clientes': typeof DashboardClientesRoute
   '/dashboard/estrategias': typeof DashboardEstrategiasRoute
   '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug': typeof SlugIndexRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/$slug/avaliar': typeof SlugAvaliarRoute
   '/dashboard/artes': typeof DashboardArtesRoute
   '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/clientes': typeof DashboardClientesRoute
   '/dashboard/estrategias': typeof DashboardEstrategiasRoute
   '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug/': typeof SlugIndexRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/$slug/avaliar'
     | '/dashboard/artes'
     | '/dashboard/avaliacoes'
+    | '/dashboard/clientes'
     | '/dashboard/estrategias'
     | '/dashboard/vitrine'
     | '/$slug/'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/$slug/avaliar'
     | '/dashboard/artes'
     | '/dashboard/avaliacoes'
+    | '/dashboard/clientes'
     | '/dashboard/estrategias'
     | '/dashboard/vitrine'
     | '/$slug'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/$slug/avaliar'
     | '/dashboard/artes'
     | '/dashboard/avaliacoes'
+    | '/dashboard/clientes'
     | '/dashboard/estrategias'
     | '/dashboard/vitrine'
     | '/$slug/'
@@ -211,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAvaliacoesRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/clientes': {
+      id: '/dashboard/clientes'
+      path: '/clientes'
+      fullPath: '/dashboard/clientes'
+      preLoaderRoute: typeof DashboardClientesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/estrategias': {
       id: '/dashboard/estrategias'
       path: '/estrategias'
@@ -231,6 +250,7 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardArtesRoute: typeof DashboardArtesRoute
   DashboardAvaliacoesRoute: typeof DashboardAvaliacoesRoute
+  DashboardClientesRoute: typeof DashboardClientesRoute
   DashboardEstrategiasRoute: typeof DashboardEstrategiasRoute
   DashboardVitrineRoute: typeof DashboardVitrineRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -239,6 +259,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardArtesRoute: DashboardArtesRoute,
   DashboardAvaliacoesRoute: DashboardAvaliacoesRoute,
+  DashboardClientesRoute: DashboardClientesRoute,
   DashboardEstrategiasRoute: DashboardEstrategiasRoute,
   DashboardVitrineRoute: DashboardVitrineRoute,
   DashboardIndexRoute: DashboardIndexRoute,

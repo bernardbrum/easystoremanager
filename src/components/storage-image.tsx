@@ -4,11 +4,11 @@ import { cn } from "@/lib/utils";
 import { useAssetUrl } from "@/lib/db";
 
 type Props = {
-  path?: string | null;
+  path?: string | null | undefined;
   alt: string;
-  className?: string;
-  width?: number;
-  height?: number;
+  className?: string | undefined;
+  width?: number | undefined;
+  height?: number | undefined;
 };
 
 /** Renders an image stored in the private assets bucket (resolved to a signed URL). */
