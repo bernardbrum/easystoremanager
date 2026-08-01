@@ -6,10 +6,12 @@ import {
   Lightbulb,
   Star,
   Store as StoreIcon,
+  Users,
 } from "lucide-react";
 
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { store } from "@/data/mockData";
+import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,7 +47,12 @@ const modules = [
   {
     icon: Images,
     title: "Artes em 1 Clique",
-    text: "Escolha o produto, o template e baixe a arte em formato story pronta para postar.",
+    text: "Escolha o produto, personalize cores e fontes e baixe a arte em formato story.",
+  },
+  {
+    icon: Users,
+    title: "Base de Clientes",
+    text: "Cadastre, importe por CSV e chame cada cliente no WhatsApp em um toque.",
   },
   {
     icon: Lightbulb,
@@ -55,18 +62,25 @@ const modules = [
 ];
 
 function Landing() {
+  const { user, loading } = useSession();
+
   return (
     <div className="min-h-screen bg-background">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-6">
         <span className="font-display text-lg font-extrabold tracking-tight">
           Easy<span className="text-primary">Manager</span>
         </span>
-        <Button asChild size="sm" variant="outline">
-          <Link to="/dashboard/vitrine">
-            <LayoutDashboard className="size-4" />
-            Painel
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {!loading && (
+            <Button asChild size="sm" variant="outline">
+              <Link to={user ? "/dashboard/vitrine" : "/login"}>
+                <LayoutDashboard className="size-4" />
+                {user ? "Meu painel" : "Entrar"}
+              </Link>
+            </Button>
+          )}
+        </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-5 pb-20">
@@ -83,14 +97,9 @@ function Landing() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link to="/dashboard/vitrine">
-                Abrir o painel
+              <Link to={user ? "/dashboard/vitrine" : "/login"}>
+                {user ? "Abrir o painel" : "Criar minha vitrine"}
                 <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/$slug" params={{ slug: store.slug }}>
-                Ver vitrine de exemplo
               </Link>
             </Button>
           </div>
@@ -106,27 +115,6 @@ function Landing() {
               <p className="mt-2 text-sm text-muted-foreground">{m.text}</p>
             </article>
           ))}
-        </section>
-
-        <section className="surface-card mt-10 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <h2 className="text-lg font-bold">Loja demonstrativa</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {store.name} · easymanager.app/{store.slug}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button asChild variant="secondary">
-              <Link to="/$slug" params={{ slug: store.slug }}>
-                Vitrine
-              </Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link to="/$slug/avaliar" params={{ slug: store.slug }}>
-                Página de avaliação
-              </Link>
-            </Button>
-          </div>
         </section>
       </main>
     </div>

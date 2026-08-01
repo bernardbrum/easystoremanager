@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as SlugIndexRouteImport } from './routes/$slug.index'
 import { Route as SlugAvaliarRouteImport } from './routes/$slug.avaliar'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardArtesRouteImport } from './routes/dashboard.artes'
 import { Route as DashboardAvaliacoesRouteImport } from './routes/dashboard.avaliacoes'
+import { Route as DashboardClientesRouteImport } from './routes/dashboard.clientes'
 import { Route as DashboardEstrategiasRouteImport } from './routes/dashboard.estrategias'
 import { Route as DashboardVitrineRouteImport } from './routes/dashboard.vitrine'
 
@@ -27,6 +29,11 @@ const IndexRoute = IndexRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SlugIndexRoute = SlugIndexRouteImport.update({
@@ -54,6 +61,11 @@ const DashboardAvaliacoesRoute = DashboardAvaliacoesRouteImport.update({
   path: '/avaliacoes',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardClientesRoute = DashboardClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardEstrategiasRoute = DashboardEstrategiasRouteImport.update({
   id: '/estrategias',
   path: '/estrategias',
@@ -68,9 +80,11 @@ const DashboardVitrineRoute = DashboardVitrineRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
   '/$slug/avaliar': typeof SlugAvaliarRoute
   '/dashboard/artes': typeof DashboardArtesRoute
   '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/clientes': typeof DashboardClientesRoute
   '/dashboard/estrategias': typeof DashboardEstrategiasRoute
   '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug/': typeof SlugIndexRoute
@@ -78,9 +92,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/$slug/avaliar': typeof SlugAvaliarRoute
   '/dashboard/artes': typeof DashboardArtesRoute
   '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/clientes': typeof DashboardClientesRoute
   '/dashboard/estrategias': typeof DashboardEstrategiasRoute
   '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug': typeof SlugIndexRoute
@@ -90,9 +106,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
   '/$slug/avaliar': typeof SlugAvaliarRoute
   '/dashboard/artes': typeof DashboardArtesRoute
   '/dashboard/avaliacoes': typeof DashboardAvaliacoesRoute
+  '/dashboard/clientes': typeof DashboardClientesRoute
   '/dashboard/estrategias': typeof DashboardEstrategiasRoute
   '/dashboard/vitrine': typeof DashboardVitrineRoute
   '/$slug/': typeof SlugIndexRoute
@@ -103,9 +121,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/login'
     | '/$slug/avaliar'
     | '/dashboard/artes'
     | '/dashboard/avaliacoes'
+    | '/dashboard/clientes'
     | '/dashboard/estrategias'
     | '/dashboard/vitrine'
     | '/$slug/'
@@ -113,9 +133,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/login'
     | '/$slug/avaliar'
     | '/dashboard/artes'
     | '/dashboard/avaliacoes'
+    | '/dashboard/clientes'
     | '/dashboard/estrategias'
     | '/dashboard/vitrine'
     | '/$slug'
@@ -124,9 +146,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/login'
     | '/$slug/avaliar'
     | '/dashboard/artes'
     | '/dashboard/avaliacoes'
+    | '/dashboard/clientes'
     | '/dashboard/estrategias'
     | '/dashboard/vitrine'
     | '/$slug/'
@@ -136,6 +160,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  LoginRoute: typeof LoginRoute
   SlugAvaliarRoute: typeof SlugAvaliarRoute
   SlugIndexRoute: typeof SlugIndexRoute
 }
@@ -154,6 +179,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$slug/': {
@@ -191,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAvaliacoesRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/clientes': {
+      id: '/dashboard/clientes'
+      path: '/clientes'
+      fullPath: '/dashboard/clientes'
+      preLoaderRoute: typeof DashboardClientesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/estrategias': {
       id: '/dashboard/estrategias'
       path: '/estrategias'
@@ -211,6 +250,7 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardArtesRoute: typeof DashboardArtesRoute
   DashboardAvaliacoesRoute: typeof DashboardAvaliacoesRoute
+  DashboardClientesRoute: typeof DashboardClientesRoute
   DashboardEstrategiasRoute: typeof DashboardEstrategiasRoute
   DashboardVitrineRoute: typeof DashboardVitrineRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -219,6 +259,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardArtesRoute: DashboardArtesRoute,
   DashboardAvaliacoesRoute: DashboardAvaliacoesRoute,
+  DashboardClientesRoute: DashboardClientesRoute,
   DashboardEstrategiasRoute: DashboardEstrategiasRoute,
   DashboardVitrineRoute: DashboardVitrineRoute,
   DashboardIndexRoute: DashboardIndexRoute,
@@ -231,6 +272,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  LoginRoute: LoginRoute,
   SlugAvaliarRoute: SlugAvaliarRoute,
   SlugIndexRoute: SlugIndexRoute,
 }

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ExternalLink, Images, Lightbulb, Star, Store as StoreIcon } from "lucide-react";
+import { ExternalLink, Images, Lightbulb, Star, Store as StoreIcon, Users } from "lucide-react";
 
 import {
   Sidebar,
@@ -13,16 +13,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { store } from "@/data/mockData";
 
 const items = [
   { title: "Gestão da Vitrine", url: "/dashboard/vitrine", icon: StoreIcon },
+  { title: "Clientes", url: "/dashboard/clientes", icon: Users },
   { title: "Gerador de Artes", url: "/dashboard/artes", icon: Images },
   { title: "Avaliações", url: "/dashboard/avaliacoes", icon: Star },
   { title: "Arsenal de Estratégias", url: "/dashboard/estrategias", icon: Lightbulb },
 ] as const;
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ slug }: { slug?: string | undefined }) {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
   return (
@@ -58,8 +58,8 @@ export function DashboardSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Ver vitrine pública">
-              <Link to="/$slug" params={{ slug: store.slug }}>
+            <SidebarMenuButton asChild tooltip="Ver vitrine pública" disabled={!slug}>
+              <Link to="/$slug" params={{ slug: slug ?? "" }} disabled={!slug}>
                 <ExternalLink className="size-4" />
                 <span>Ver vitrine</span>
               </Link>
