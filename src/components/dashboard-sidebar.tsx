@@ -22,7 +22,7 @@ const items = [
   { title: "Arsenal de Estratégias", url: "/dashboard/estrategias", icon: Lightbulb },
 ] as const;
 
-export function DashboardSidebar({ slug }: { slug?: string }) {
+export function DashboardSidebar({ slug }: { slug?: string | undefined }) {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
 
   return (
