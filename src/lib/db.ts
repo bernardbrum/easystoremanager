@@ -181,7 +181,7 @@ export function useProductMutations(storeId?: string) {
   const invalidate = () => qc.invalidateQueries({ queryKey: ["products"] });
 
   const save = useMutation({
-    mutationFn: async (input: TablesInsert<"products"> & { id?: string }) => {
+    mutationFn: async (input: TablesInsert<"products"> & { id?: string | undefined }) => {
       if (!storeId) throw new Error("Loja não encontrada");
       const { id, ...values } = input;
       if (id) {
@@ -273,7 +273,7 @@ export function useClientMutations(storeId?: string) {
   const invalidate = () => qc.invalidateQueries({ queryKey: ["clients"] });
 
   const save = useMutation({
-    mutationFn: async (input: TablesInsert<"clients"> & { id?: string }) => {
+    mutationFn: async (input: TablesInsert<"clients"> & { id?: string | undefined }) => {
       if (!storeId) throw new Error("Loja não encontrada");
       const { id, ...values } = input;
       if (id) {
@@ -333,7 +333,7 @@ export function useArtMutations(storeId?: string) {
   const invalidate = () => qc.invalidateQueries({ queryKey: ["arts"] });
 
   const save = useMutation({
-    mutationFn: async (input: TablesInsert<"generated_arts"> & { id?: string }) => {
+    mutationFn: async (input: TablesInsert<"generated_arts"> & { id?: string | undefined }) => {
       if (!storeId) throw new Error("Loja não encontrada");
       const { id, ...values } = input;
       if (id) {
