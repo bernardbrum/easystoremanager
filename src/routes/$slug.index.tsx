@@ -102,7 +102,7 @@ function BioLinkPage() {
 
   const copyPix = async () => {
     try {
-      const { pixKey } = await fetchStorePix({ data: { slug } });
+      const { pixKey } = await getStorePix({ data: { slug } });
       if (!pixKey) {
         toast.error("Esta loja ainda não cadastrou uma chave PIX");
         return;
