@@ -25,6 +25,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { formatPrice } from "@/lib/format";
+import { getStorePix } from "@/lib/store.functions";
 import { usePublicCatalog, usePublicStore, type Product } from "@/lib/db";
 
 export const Route = createFileRoute("/$slug/")({
@@ -100,12 +101,13 @@ function BioLinkPage() {
   };
 
   const copyPix = async () => {
-    if (!store?.pix_key) {
-      toast.error("Esta loja ainda não cadastrou uma chave PIX");
-      return;
-    }
     try {
-      await navigator.clipboard.writeText(store.pix_key);
+      const { pixKey } = await fetchStorePix({ data: { slug } });
+      if (!pixKey) {
+        toast.error("Esta loja ainda não cadastrou uma chave PIX");
+        return;
+      }
+      await navigator.clipboard.writeText(pixKey);
       toast.success("Chave PIX copiada!");
     } catch {
       toast.error("Não foi possível copiar a chave PIX");
