@@ -87,13 +87,17 @@ export function useUpdateStore(storeId?: string) {
   });
 }
 
+// pix_key is intentionally excluded: anon has no column privilege on it.
+const PUBLIC_STORE_COLUMNS =
+  "id, owner_id, name, slug, whatsapp, google_review_url, logo_url, banner_url, description, business_hours, bg_color, created_at";
+
 export function usePublicStore(slug: string) {
   return useQuery({
     queryKey: ["public-store", slug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("stores")
-        .select("*")
+        .select(PUBLIC_STORE_COLUMNS)
         .eq("slug", slug)
         .maybeSingle();
       if (error) throw error;
