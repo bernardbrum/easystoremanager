@@ -4,7 +4,14 @@ import { Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2, Upload } from "luci
 import { toast } from "sonner";
 
 import { StorageImage } from "@/components/storage-image";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
