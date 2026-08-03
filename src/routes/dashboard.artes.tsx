@@ -566,8 +566,8 @@ function ArtCanvas({
 }: {
   ref: React.Ref<HTMLDivElement>;
   art: ArtForm;
-  storeName?: string;
-  storeSlug?: string;
+  storeName?: string | undefined;
+  storeSlug?: string | undefined;
 }) {
   const shape = SHAPES.find((s) => s.value === art.format_shape) ?? SHAPES[1];
   const imageShape = IMAGE_SHAPES.find((s) => s.value === art.image_shape) ?? IMAGE_SHAPES[1];
