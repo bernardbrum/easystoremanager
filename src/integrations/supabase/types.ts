@@ -117,7 +117,9 @@ export type Database = {
         Row: {
           bg_color: string
           created_at: string
+          format_shape: string
           id: string
+          image_shape: string
           image_url: string | null
           is_favorite: boolean
           name: string
@@ -127,13 +129,17 @@ export type Database = {
           store_id: string
           subtitle: string
           tag: string
+          text_align: string
+          text_color: string
           title: string
           title_font: string
         }
         Insert: {
           bg_color?: string
           created_at?: string
+          format_shape?: string
           id?: string
+          image_shape?: string
           image_url?: string | null
           is_favorite?: boolean
           name?: string
@@ -143,13 +149,17 @@ export type Database = {
           store_id: string
           subtitle?: string
           tag?: string
+          text_align?: string
+          text_color?: string
           title?: string
           title_font?: string
         }
         Update: {
           bg_color?: string
           created_at?: string
+          format_shape?: string
           id?: string
+          image_shape?: string
           image_url?: string | null
           is_favorite?: boolean
           name?: string
@@ -159,6 +169,8 @@ export type Database = {
           store_id?: string
           subtitle?: string
           tag?: string
+          text_align?: string
+          text_color?: string
           title?: string
           title_font?: string
         }

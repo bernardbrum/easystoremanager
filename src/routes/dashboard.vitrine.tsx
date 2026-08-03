@@ -4,7 +4,14 @@ import { Eye, EyeOff, Loader2, Pencil, Plus, Search, Trash2, Upload } from "luci
 import { toast } from "sonner";
 
 import { StorageImage } from "@/components/storage-image";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -251,132 +258,151 @@ function VitrinePage() {
       </div>
 
       <section className="surface-card p-5">
-        <h2 className="text-base font-bold">Dados da loja</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Nome da loja</Label>
-            <Input id="name" value={values.name} onChange={(e) => setValue("name", e.target.value)} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="whatsapp">WhatsApp (com DDI e DDD)</Label>
-            <Input
-              id="whatsapp"
-              value={values.whatsapp}
-              onChange={(e) => setValue("whatsapp", e.target.value)}
-              placeholder="5511999999999"
-            />
-          </div>
-          <div className="grid gap-2 sm:col-span-2">
-            <Label htmlFor="desc">Descrição curta</Label>
-            <Textarea
-              id="desc"
-              rows={2}
-              value={values.description}
-              onChange={(e) => setValue("description", e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="hours">Horário de funcionamento</Label>
-            <Input
-              id="hours"
-              value={values.business_hours}
-              onChange={(e) => setValue("business_hours", e.target.value)}
-              placeholder="Seg a Sáb, 8h às 19h"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="pix">Chave PIX</Label>
-            <Input id="pix" value={values.pix_key} onChange={(e) => setValue("pix_key", e.target.value)} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="google">Link de avaliação no Google</Label>
-            <Input
-              id="google"
-              value={values.google_review_url}
-              onChange={(e) => setValue("google_review_url", e.target.value)}
-              placeholder="https://g.page/r/..."
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="slug">Endereço da vitrine</Label>
-            <div className="flex items-center gap-2">
-              <span className="shrink-0 text-xs text-muted-foreground">/</span>
-              <Input id="slug" value={values.slug} onChange={(e) => setValue("slug", e.target.value)} />
-            </div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="bg">Cor de fundo da vitrine</Label>
-            <div className="flex items-center gap-2">
-              <input
-                id="bg"
-                type="color"
-                value={values.bg_color}
-                onChange={(e) => setValue("bg_color", e.target.value)}
-                className="size-10 shrink-0 cursor-pointer rounded-lg border border-border bg-card"
-              />
-              <Input value={values.bg_color} onChange={(e) => setValue("bg_color", e.target.value)} />
-            </div>
-          </div>
-        </div>
+        <h2 className="text-base font-bold">Configurações da loja</h2>
+        <Accordion type="single" collapsible defaultValue="identidade" className="mt-2">
+          <AccordionItem value="identidade">
+            <AccordionTrigger>Identidade visual</AccordionTrigger>
+            <AccordionContent>
+              <div className="grid gap-4 pt-1 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Nome da loja</Label>
+                  <Input id="name" value={values.name} onChange={(e) => setValue("name", e.target.value)} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="slug">Endereço da vitrine</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="shrink-0 text-xs text-muted-foreground">/</span>
+                    <Input id="slug" value={values.slug} onChange={(e) => setValue("slug", e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid gap-2 sm:col-span-2">
+                  <Label htmlFor="desc">Descrição curta</Label>
+                  <Textarea
+                    id="desc"
+                    rows={2}
+                    value={values.description}
+                    onChange={(e) => setValue("description", e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="bg">Cor de fundo da vitrine</Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="bg"
+                      type="color"
+                      value={values.bg_color}
+                      onChange={(e) => setValue("bg_color", e.target.value)}
+                      className="size-10 shrink-0 cursor-pointer rounded-lg border border-border bg-card"
+                    />
+                    <Input value={values.bg_color} onChange={(e) => setValue("bg_color", e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Logo</Label>
+                  <div className="flex items-center gap-3">
+                    <StorageImage
+                      path={store?.logo_url}
+                      alt="Logo da loja"
+                      className="size-14 rounded-xl border border-border object-contain"
+                    />
+                    <Button variant="outline" size="sm" asChild>
+                      <label>
+                        <Upload className="size-4" />
+                        Enviar logo
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) void uploadImage("logo_url", file);
+                          }}
+                        />
+                      </label>
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid gap-2 sm:col-span-2">
+                  <Label>Banner</Label>
+                  <div className="flex items-center gap-3">
+                    <StorageImage
+                      path={store?.banner_url}
+                      alt="Banner da loja"
+                      className="h-14 w-24 rounded-xl border border-border object-cover"
+                    />
+                    <Button variant="outline" size="sm" asChild>
+                      <label>
+                        <Upload className="size-4" />
+                        Enviar banner
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) void uploadImage("banner_url", file);
+                          }}
+                        />
+                      </label>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <Label>Logo</Label>
-            <div className="flex items-center gap-3">
-              <StorageImage
-                path={store?.logo_url}
-                alt="Logo da loja"
-                className="size-14 rounded-xl border border-border object-contain"
-              />
-              <Button variant="outline" size="sm" asChild>
-                <label>
-                  <Upload className="size-4" />
-                  Enviar logo
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void uploadImage("logo_url", file);
-                    }}
+          <AccordionItem value="pagamento">
+            <AccordionTrigger>Pagamento &amp; links</AccordionTrigger>
+            <AccordionContent>
+              <div className="grid gap-4 pt-1 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="whatsapp">WhatsApp (com DDI e DDD)</Label>
+                  <Input
+                    id="whatsapp"
+                    value={values.whatsapp}
+                    onChange={(e) => setValue("whatsapp", e.target.value)}
+                    placeholder="5511999999999"
                   />
-                </label>
-              </Button>
-            </div>
-          </div>
-          <div className="grid gap-2">
-            <Label>Banner</Label>
-            <div className="flex items-center gap-3">
-              <StorageImage
-                path={store?.banner_url}
-                alt="Banner da loja"
-                className="h-14 w-24 rounded-xl border border-border object-cover"
-              />
-              <Button variant="outline" size="sm" asChild>
-                <label>
-                  <Upload className="size-4" />
-                  Enviar banner
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void uploadImage("banner_url", file);
-                    }}
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="pix">Chave PIX</Label>
+                  <Input id="pix" value={values.pix_key} onChange={(e) => setValue("pix_key", e.target.value)} />
+                </div>
+                <div className="grid gap-2 sm:col-span-2">
+                  <Label htmlFor="google">Link de avaliação no Google</Label>
+                  <Input
+                    id="google"
+                    value={values.google_review_url}
+                    onChange={(e) => setValue("google_review_url", e.target.value)}
+                    placeholder="https://g.page/r/..."
                   />
-                </label>
-              </Button>
-            </div>
-          </div>
-        </div>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="horarios">
+            <AccordionTrigger>Horários</AccordionTrigger>
+            <AccordionContent>
+              <div className="grid gap-2 pt-1">
+                <Label htmlFor="hours">Horário de funcionamento</Label>
+                <Input
+                  id="hours"
+                  value={values.business_hours}
+                  onChange={(e) => setValue("business_hours", e.target.value)}
+                  placeholder="Seg a Sáb, 8h às 19h"
+                />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         <Button className="mt-5" onClick={saveStore} disabled={updateStore.isPending || uploading}>
           {(updateStore.isPending || uploading) && <Loader2 className="size-4 animate-spin" />}
           Salvar alterações
         </Button>
       </section>
+
 
       <section className="surface-card p-5">
         <h2 className="text-base font-bold">Categorias ({categories.length})</h2>
