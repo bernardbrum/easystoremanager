@@ -4,7 +4,6 @@ import {
   AlignCenter,
   AlignLeft,
   AlignRight,
-  Circle,
   Download,
   Loader2,
   Pencil,
@@ -12,7 +11,6 @@ import {
   RectangleVertical,
   Save,
   Square,
-  SquareRoundCorner,
   Star,
   Trash2,
 } from "lucide-react";
