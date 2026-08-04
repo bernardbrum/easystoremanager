@@ -4,7 +4,6 @@ import {
   AlignCenter,
   AlignLeft,
   AlignRight,
-  Circle,
   Download,
   Loader2,
   Pencil,
@@ -12,7 +11,6 @@ import {
   RectangleVertical,
   Save,
   Square,
-  SquareRoundCorner,
   Star,
   Trash2,
 } from "lucide-react";
@@ -30,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useArtMutations, useArts, useMyStore, useProducts } from "@/lib/db";
 import { formatPrice } from "@/lib/format";
@@ -73,12 +72,6 @@ const SHAPES = [
   { value: "landscape", label: "16:9", icon: RectangleHorizontal, ratio: "16 / 9" },
 ] as const;
 
-const IMAGE_SHAPES = [
-  { value: "square", label: "Quadrada", icon: Square, className: "rounded-none" },
-  { value: "rounded", label: "Arredondada", icon: SquareRoundCorner, className: "rounded-2xl" },
-  { value: "circle", label: "Círculo", icon: Circle, className: "rounded-full" },
-] as const;
-
 const ALIGNMENTS = [
   { value: "left", label: "Esquerda", icon: AlignLeft, className: "text-left items-start" },
   { value: "center", label: "Centro", icon: AlignCenter, className: "text-center items-center" },
@@ -99,9 +92,14 @@ type ArtForm = {
   price_font: string;
   text_align: string;
   format_shape: string;
-  image_shape: string;
   show_link: boolean;
   image_url: string | null;
+  text_scale: number;
+  image_scale: number;
+  text_outline: boolean;
+  image_border: boolean;
+  image_border_color: string;
+  image_border_width: number;
 };
 
 const emptyArt: ArtForm = {
@@ -117,10 +115,16 @@ const emptyArt: ArtForm = {
   price_font: "Outfit",
   text_align: "center",
   format_shape: "vertical",
-  image_shape: "rounded",
   show_link: true,
   image_url: null,
+  text_scale: 1,
+  image_scale: 0.6,
+  text_outline: false,
+  image_border: false,
+  image_border_color: "#ffffff",
+  image_border_width: 4,
 };
+
 
 function OptionRow<T extends string>({
   label,
@@ -204,10 +208,16 @@ function ArtesPage() {
     price_font: a.price_font,
     text_align: a.text_align,
     format_shape: a.format_shape,
-    image_shape: a.image_shape,
     show_link: a.show_link,
     image_url: a.image_url,
+    text_scale: Number(a.text_scale ?? 1),
+    image_scale: Number(a.image_scale ?? 0.6),
+    text_outline: a.text_outline ?? false,
+    image_border: a.image_border ?? false,
+    image_border_color: a.image_border_color ?? "#ffffff",
+    image_border_width: Number(a.image_border_width ?? 4),
   });
+
 
   const download = async () => {
     if (!previewRef.current) return;
@@ -254,7 +264,13 @@ function ArtesPage() {
         price_font: art.price_font,
         text_align: art.text_align,
         format_shape: art.format_shape,
-        image_shape: art.image_shape,
+        text_scale: art.text_scale,
+        image_scale: art.image_scale,
+        text_outline: art.text_outline,
+        image_border: art.image_border,
+        image_border_color: art.image_border_color,
+        image_border_width: art.image_border_width,
+
         show_link: art.show_link,
         image_url: art.image_url,
         ...(favorite ? { is_favorite: true } : {}),
@@ -351,12 +367,39 @@ function ArtesPage() {
               options={SHAPES}
               onChange={(v) => set("format_shape", v)}
             />
-            <OptionRow
-              label="Formato da foto do produto"
-              value={art.image_shape}
-              options={IMAGE_SHAPES}
-              onChange={(v) => set("image_shape", v)}
-            />
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="a-text-scale">Tamanho das letras</Label>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {Math.round(art.text_scale * 100)}%
+                </span>
+              </div>
+              <Slider
+                id="a-text-scale"
+                min={0.6}
+                max={2}
+                step={0.05}
+                value={[art.text_scale]}
+                onValueChange={([v]: number[]) => set("text_scale", v ?? 1)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="a-img-scale">Tamanho da foto</Label>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {Math.round(art.image_scale * 100)}%
+                </span>
+              </div>
+              <Slider
+                id="a-img-scale"
+                min={0.2}
+                max={1}
+                step={0.02}
+                value={[art.image_scale]}
+                onValueChange={([v]: number[]) => set("image_scale", v ?? 0.6)}
+              />
+            </div>
+
             <OptionRow
               label="Alinhamento do texto"
               value={art.text_align}
@@ -427,6 +470,58 @@ function ArtesPage() {
             </div>
             <div className="flex items-center justify-between rounded-xl border border-border p-3">
               <div className="min-w-0">
+                <p className="text-sm font-semibold">Contorno nas letras</p>
+                <p className="text-xs text-muted-foreground">
+                  Cria um traço escuro em volta do texto para dar destaque.
+                </p>
+              </div>
+              <Switch checked={art.text_outline} onCheckedChange={(v) => set("text_outline", v)} />
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-border p-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Borda na foto</p>
+                <p className="text-xs text-muted-foreground">Moldura em volta da imagem do produto.</p>
+              </div>
+              <Switch checked={art.image_border} onCheckedChange={(v) => set("image_border", v)} />
+            </div>
+            {art.image_border && (
+              <div className="grid gap-4 rounded-xl border border-border p-3 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="a-bd-color">Cor da borda</Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="a-bd-color"
+                      type="color"
+                      value={art.image_border_color}
+                      onChange={(e) => set("image_border_color", e.target.value)}
+                      className="size-10 shrink-0 cursor-pointer rounded-lg border border-border"
+                    />
+                    <Input
+                      value={art.image_border_color}
+                      onChange={(e) => set("image_border_color", e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="a-bd-width">Espessura da borda</Label>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      {art.image_border_width}px
+                    </span>
+                  </div>
+                  <Slider
+                    id="a-bd-width"
+                    min={1}
+                    max={20}
+                    step={1}
+                    value={[art.image_border_width]}
+                    onValueChange={([v]: number[]) => set("image_border_width", v ?? 4)}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="flex items-center justify-between rounded-xl border border-border p-3">
+              <div className="min-w-0">
                 <p className="text-sm font-semibold">Mostrar link da vitrine</p>
                 <p className="text-xs text-muted-foreground">
                   Exibe /{store?.slug ?? "sua-loja"} no rodapé da arte.
@@ -435,6 +530,7 @@ function ArtesPage() {
               <Switch checked={art.show_link} onCheckedChange={(v) => set("show_link", v)} />
             </div>
           </div>
+
 
           {favorites.length > 0 && (
             <div className="surface-card space-y-3 p-5">
@@ -570,7 +666,6 @@ function ArtCanvas({
   storeSlug?: string | undefined;
 }) {
   const shape = SHAPES.find((s) => s.value === art.format_shape) ?? SHAPES[1];
-  const imageShape = IMAGE_SHAPES.find((s) => s.value === art.image_shape) ?? IMAGE_SHAPES[1];
   const align = ALIGNMENTS.find((a) => a.value === art.text_align) ?? ALIGNMENTS[1];
 
   return (
@@ -579,7 +674,15 @@ function ArtCanvas({
       className="relative w-full overflow-hidden rounded-2xl shadow-lg"
       style={{ backgroundColor: art.bg_color, aspectRatio: shape.ratio, color: art.text_color }}
     >
-      <div className={cn("flex h-full flex-col justify-center gap-3 p-6", align.className)}>
+      <div
+        className={cn("flex h-full flex-col justify-center gap-3 p-6", align.className)}
+        style={{
+          fontSize: `${art.text_scale}em`,
+          ...(art.text_outline
+            ? { WebkitTextStroke: `0.5px rgba(0,0,0,0.85)`, paintOrder: "stroke fill" }
+            : {}),
+        }}
+      >
         {art.tag && (
           <span
             className="inline-flex rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase"
@@ -601,7 +704,15 @@ function ArtCanvas({
         )}
 
         {art.image_url && (
-          <div className={cn("w-full max-w-[60%] overflow-hidden", imageShape.className)}>
+          <div
+            className="overflow-hidden rounded-2xl"
+            style={{
+              width: `${Math.round(art.image_scale * 100)}%`,
+              ...(art.image_border
+                ? { border: `${art.image_border_width}px solid ${art.image_border_color}` }
+                : {}),
+            }}
+          >
             <StorageImage
               path={art.image_url}
               alt={art.title}
@@ -619,6 +730,7 @@ function ArtCanvas({
           </p>
         </div>
       </div>
+
 
       <div className={cn("absolute inset-x-6 bottom-4 text-[10px] opacity-80", align.className)}>
         <p className="font-bold">{storeName}</p>
