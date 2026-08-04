@@ -119,7 +119,11 @@ export type Database = {
           created_at: string
           format_shape: string
           id: string
-          image_shape: string
+          image_border: boolean
+          image_border_color: string
+          image_border_width: number
+          image_scale: number
+          image_shape: string | null
           image_url: string | null
           is_favorite: boolean
           name: string
@@ -131,6 +135,8 @@ export type Database = {
           tag: string
           text_align: string
           text_color: string
+          text_outline: boolean
+          text_scale: number
           title: string
           title_font: string
         }
@@ -139,7 +145,11 @@ export type Database = {
           created_at?: string
           format_shape?: string
           id?: string
-          image_shape?: string
+          image_border?: boolean
+          image_border_color?: string
+          image_border_width?: number
+          image_scale?: number
+          image_shape?: string | null
           image_url?: string | null
           is_favorite?: boolean
           name?: string
@@ -151,6 +161,8 @@ export type Database = {
           tag?: string
           text_align?: string
           text_color?: string
+          text_outline?: boolean
+          text_scale?: number
           title?: string
           title_font?: string
         }
@@ -159,7 +171,11 @@ export type Database = {
           created_at?: string
           format_shape?: string
           id?: string
-          image_shape?: string
+          image_border?: boolean
+          image_border_color?: string
+          image_border_width?: number
+          image_scale?: number
+          image_shape?: string | null
           image_url?: string | null
           is_favorite?: boolean
           name?: string
@@ -171,6 +187,8 @@ export type Database = {
           tag?: string
           text_align?: string
           text_color?: string
+          text_outline?: boolean
+          text_scale?: number
           title?: string
           title_font?: string
         }
