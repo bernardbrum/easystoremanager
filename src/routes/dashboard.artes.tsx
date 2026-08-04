@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useArtMutations, useArts, useMyStore, useProducts } from "@/lib/db";
 import { formatPrice } from "@/lib/format";
@@ -381,7 +382,7 @@ function ArtesPage() {
                 max={2}
                 step={0.05}
                 value={[art.text_scale]}
-                onValueChange={([v]) => set("text_scale", v ?? 1)}
+                onValueChange={([v]: number[]) => set("text_scale", v ?? 1)}
               />
             </div>
             <div className="grid gap-2">
@@ -397,7 +398,7 @@ function ArtesPage() {
                 max={1}
                 step={0.02}
                 value={[art.image_scale]}
-                onValueChange={([v]) => set("image_scale", v ?? 0.6)}
+                onValueChange={([v]: number[]) => set("image_scale", v ?? 0.6)}
               />
             </div>
 
@@ -667,7 +668,6 @@ function ArtCanvas({
   storeSlug?: string | undefined;
 }) {
   const shape = SHAPES.find((s) => s.value === art.format_shape) ?? SHAPES[1];
-  const imageShape = IMAGE_SHAPES.find((s) => s.value === art.image_shape) ?? IMAGE_SHAPES[1];
   const align = ALIGNMENTS.find((a) => a.value === art.text_align) ?? ALIGNMENTS[1];
 
   return (
