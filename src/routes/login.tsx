@@ -78,7 +78,7 @@ function LoginPage() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: returnUrl() },
     });
     setLoading(false);
     if (error) {
@@ -94,7 +94,7 @@ function LoginPage() {
 
   const signInWithGoogle = async () => {
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: returnUrl(),
     });
     if (result.error) {
       toast.error("Não foi possível entrar com o Google");
