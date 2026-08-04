@@ -56,7 +56,8 @@ function LoginPage() {
     return () => sub.subscription.unsubscribe();
   }, [navigate, next]);
 
-  const returnUrl = () => `${window.location.origin}${next || "/dashboard/vitrine"}`;
+  // Keep OAuth/email returns on a public origin URL unless a saved path is pending.
+  const returnUrl = () => `${window.location.origin}${next || ""}`;
 
   const signIn = async () => {
     setLoading(true);
