@@ -209,10 +209,16 @@ function ArtesPage() {
     price_font: a.price_font,
     text_align: a.text_align,
     format_shape: a.format_shape,
-    image_shape: a.image_shape,
     show_link: a.show_link,
     image_url: a.image_url,
+    text_scale: Number(a.text_scale ?? 1),
+    image_scale: Number(a.image_scale ?? 0.6),
+    text_outline: a.text_outline ?? false,
+    image_border: a.image_border ?? false,
+    image_border_color: a.image_border_color ?? "#ffffff",
+    image_border_width: Number(a.image_border_width ?? 4),
   });
+
 
   const download = async () => {
     if (!previewRef.current) return;
