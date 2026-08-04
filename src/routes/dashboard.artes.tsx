@@ -368,12 +368,39 @@ function ArtesPage() {
               options={SHAPES}
               onChange={(v) => set("format_shape", v)}
             />
-            <OptionRow
-              label="Formato da foto do produto"
-              value={art.image_shape}
-              options={IMAGE_SHAPES}
-              onChange={(v) => set("image_shape", v)}
-            />
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="a-text-scale">Tamanho das letras</Label>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {Math.round(art.text_scale * 100)}%
+                </span>
+              </div>
+              <Slider
+                id="a-text-scale"
+                min={0.6}
+                max={2}
+                step={0.05}
+                value={[art.text_scale]}
+                onValueChange={([v]) => set("text_scale", v ?? 1)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="a-img-scale">Tamanho da foto</Label>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {Math.round(art.image_scale * 100)}%
+                </span>
+              </div>
+              <Slider
+                id="a-img-scale"
+                min={0.2}
+                max={1}
+                step={0.02}
+                value={[art.image_scale]}
+                onValueChange={([v]) => set("image_scale", v ?? 0.6)}
+              />
+            </div>
+
             <OptionRow
               label="Alinhamento do texto"
               value={art.text_align}
