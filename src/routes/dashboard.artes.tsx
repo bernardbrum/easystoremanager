@@ -471,6 +471,58 @@ function ArtesPage() {
             </div>
             <div className="flex items-center justify-between rounded-xl border border-border p-3">
               <div className="min-w-0">
+                <p className="text-sm font-semibold">Contorno nas letras</p>
+                <p className="text-xs text-muted-foreground">
+                  Cria um traço escuro em volta do texto para dar destaque.
+                </p>
+              </div>
+              <Switch checked={art.text_outline} onCheckedChange={(v) => set("text_outline", v)} />
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-border p-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Borda na foto</p>
+                <p className="text-xs text-muted-foreground">Moldura em volta da imagem do produto.</p>
+              </div>
+              <Switch checked={art.image_border} onCheckedChange={(v) => set("image_border", v)} />
+            </div>
+            {art.image_border && (
+              <div className="grid gap-4 rounded-xl border border-border p-3 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="a-bd-color">Cor da borda</Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="a-bd-color"
+                      type="color"
+                      value={art.image_border_color}
+                      onChange={(e) => set("image_border_color", e.target.value)}
+                      className="size-10 shrink-0 cursor-pointer rounded-lg border border-border"
+                    />
+                    <Input
+                      value={art.image_border_color}
+                      onChange={(e) => set("image_border_color", e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="a-bd-width">Espessura da borda</Label>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      {art.image_border_width}px
+                    </span>
+                  </div>
+                  <Slider
+                    id="a-bd-width"
+                    min={1}
+                    max={20}
+                    step={1}
+                    value={[art.image_border_width]}
+                    onValueChange={([v]: number[]) => set("image_border_width", v ?? 4)}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="flex items-center justify-between rounded-xl border border-border p-3">
+              <div className="min-w-0">
                 <p className="text-sm font-semibold">Mostrar link da vitrine</p>
                 <p className="text-xs text-muted-foreground">
                   Exibe /{store?.slug ?? "sua-loja"} no rodapé da arte.
@@ -479,6 +531,7 @@ function ArtesPage() {
               <Switch checked={art.show_link} onCheckedChange={(v) => set("show_link", v)} />
             </div>
           </div>
+
 
           {favorites.length > 0 && (
             <div className="surface-card space-y-3 p-5">
