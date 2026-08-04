@@ -11,7 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 
+// Only same-origin relative paths may be used as a post-login destination.
+const safeNext = (value: unknown) =>
+  typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "";
+
 export const Route = createFileRoute("/login")({
+  validateSearch: (s: Record<string, unknown>) => ({ next: safeNext(s["next"]) }),
   head: () => ({
     meta: [
       { title: "Entrar no painel — EasyManager" },
@@ -29,19 +34,30 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const go = () => {
+      if (next) {
+        window.location.href = next;
+        return;
+      }
+      navigate({ to: "/dashboard/vitrine", replace: true });
+    };
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard/vitrine", replace: true });
+      if (data.session) go();
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session) navigate({ to: "/dashboard/vitrine", replace: true });
+      if (session) go();
     });
     return () => sub.subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, next]);
+
+  // Keep OAuth/email returns on a public origin URL unless a saved path is pending.
+  const returnUrl = () => `${window.location.origin}${next || ""}`;
 
   const signIn = async () => {
     setLoading(true);
@@ -63,7 +79,7 @@ function LoginPage() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: returnUrl() },
     });
     setLoading(false);
     if (error) {
@@ -79,7 +95,7 @@ function LoginPage() {
 
   const signInWithGoogle = async () => {
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: returnUrl(),
     });
     if (result.error) {
       toast.error("Não foi possível entrar com o Google");
