@@ -1,0 +1,209 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://kgrwnxlpndjmdrcvzqkr.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "easystore-manager",
+      "version": "0.1.0",
+      "title": "EasyStore Manager"
+    },
+    "tools": [
+      {
+        "name": "get_store",
+        "title": "Get store",
+        "description": "Get the signed-in shopkeeper's store: name, public slug, WhatsApp, description and business hours.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_products",
+        "title": "List products",
+        "description": "List the products in the signed-in shopkeeper's catalog, optionally filtered by name and by active state.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Filter products whose name contains this text.",
+              "type": "string"
+            },
+            "only_active": {
+              "description": "When true, return only products on the storefront.",
+              "type": "boolean"
+            },
+            "limit": {
+              "description": "Maximum number of products to return (default 50).",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_product",
+        "title": "Create product",
+        "description": "Add a product to the signed-in shopkeeper's catalog.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Product name."
+            },
+            "price": {
+              "type": "number",
+              "description": "Current selling price."
+            },
+            "description": {
+              "description": "Short product description.",
+              "type": "string"
+            },
+            "old_price": {
+              "description": "Previous price, shown struck through.",
+              "type": "number"
+            },
+            "unit": {
+              "description": "Unit such as UN, KG, L, CX (default UN).",
+              "type": "string"
+            },
+            "is_active": {
+              "description": "Whether the product shows on the storefront (default true).",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "name",
+            "price"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_clients",
+        "title": "List customers",
+        "description": "List the customers saved in the signed-in shopkeeper's account.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Filter customers whose name contains this text.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Maximum number of customers to return (default 50).",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_client",
+        "title": "Create customer",
+        "description": "Save a new customer in the signed-in shopkeeper's account.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Customer name."
+            },
+            "phone": {
+              "description": "WhatsApp/phone number.",
+              "type": "string"
+            },
+            "address": {
+              "description": "Delivery address.",
+              "type": "string"
+            },
+            "birth_date": {
+              "description": "Birth date as YYYY-MM-DD.",
+              "type": "string"
+            },
+            "notes": {
+              "description": "Free-form notes about the customer.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_reviews",
+        "title": "List reviews",
+        "description": "List the reviews customers left for the signed-in shopkeeper's store, newest first, with the average rating.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "max_rating": {
+              "description": "Return only reviews at or below this rating, e.g. 4 for private feedback.",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "limit": {
+              "description": "Maximum number of reviews to return (default 50).",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
