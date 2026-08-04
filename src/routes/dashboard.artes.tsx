@@ -73,12 +73,6 @@ const SHAPES = [
   { value: "landscape", label: "16:9", icon: RectangleHorizontal, ratio: "16 / 9" },
 ] as const;
 
-const IMAGE_SHAPES = [
-  { value: "square", label: "Quadrada", icon: Square, className: "rounded-none" },
-  { value: "rounded", label: "Arredondada", icon: SquareRoundCorner, className: "rounded-2xl" },
-  { value: "circle", label: "Círculo", icon: Circle, className: "rounded-full" },
-] as const;
-
 const ALIGNMENTS = [
   { value: "left", label: "Esquerda", icon: AlignLeft, className: "text-left items-start" },
   { value: "center", label: "Centro", icon: AlignCenter, className: "text-center items-center" },
@@ -99,9 +93,14 @@ type ArtForm = {
   price_font: string;
   text_align: string;
   format_shape: string;
-  image_shape: string;
   show_link: boolean;
   image_url: string | null;
+  text_scale: number;
+  image_scale: number;
+  text_outline: boolean;
+  image_border: boolean;
+  image_border_color: string;
+  image_border_width: number;
 };
 
 const emptyArt: ArtForm = {
@@ -117,10 +116,16 @@ const emptyArt: ArtForm = {
   price_font: "Outfit",
   text_align: "center",
   format_shape: "vertical",
-  image_shape: "rounded",
   show_link: true,
   image_url: null,
+  text_scale: 1,
+  image_scale: 0.6,
+  text_outline: false,
+  image_border: false,
+  image_border_color: "#ffffff",
+  image_border_width: 4,
 };
+
 
 function OptionRow<T extends string>({
   label,
