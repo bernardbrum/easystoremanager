@@ -676,7 +676,15 @@ function ArtCanvas({
       className="relative w-full overflow-hidden rounded-2xl shadow-lg"
       style={{ backgroundColor: art.bg_color, aspectRatio: shape.ratio, color: art.text_color }}
     >
-      <div className={cn("flex h-full flex-col justify-center gap-3 p-6", align.className)}>
+      <div
+        className={cn("flex h-full flex-col justify-center gap-3 p-6", align.className)}
+        style={{
+          fontSize: `${art.text_scale}em`,
+          ...(art.text_outline
+            ? { WebkitTextStroke: `0.5px rgba(0,0,0,0.85)`, paintOrder: "stroke fill" }
+            : {}),
+        }}
+      >
         {art.tag && (
           <span
             className="inline-flex rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase"
@@ -698,7 +706,15 @@ function ArtCanvas({
         )}
 
         {art.image_url && (
-          <div className={cn("w-full max-w-[60%] overflow-hidden", imageShape.className)}>
+          <div
+            className="overflow-hidden rounded-2xl"
+            style={{
+              width: `${Math.round(art.image_scale * 100)}%`,
+              ...(art.image_border
+                ? { border: `${art.image_border_width}px solid ${art.image_border_color}` }
+                : {}),
+            }}
+          >
             <StorageImage
               path={art.image_url}
               alt={art.title}
@@ -716,6 +732,7 @@ function ArtCanvas({
           </p>
         </div>
       </div>
+
 
       <div className={cn("absolute inset-x-6 bottom-4 text-[10px] opacity-80", align.className)}>
         <p className="font-bold">{storeName}</p>
