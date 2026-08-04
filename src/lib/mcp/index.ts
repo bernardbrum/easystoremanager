@@ -21,6 +21,8 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
+  // exactOptionalPropertyTypes rejects the implicit `outputSchema: undefined`
+  // on tools that declare no output schema; the runtime shape is correct.
   tools: [
     getStoreTool,
     listProductsTool,
@@ -28,5 +30,5 @@ export default defineMcp({
     listClientsTool,
     createClientTool,
     listReviewsTool,
-  ],
+  ] as Parameters<typeof defineMcp>[0]["tools"],
 });
