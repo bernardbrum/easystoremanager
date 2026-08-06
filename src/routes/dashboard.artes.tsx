@@ -5,14 +5,18 @@ import {
   AlignLeft,
   AlignRight,
   Download,
+  ImageOff,
   Loader2,
+  Move,
   Pencil,
   RectangleHorizontal,
   RectangleVertical,
+  RotateCcw,
   Save,
   Square,
   Star,
   Trash2,
+  Type,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -73,10 +77,78 @@ const SHAPES = [
 ] as const;
 
 const ALIGNMENTS = [
-  { value: "left", label: "Esquerda", icon: AlignLeft, className: "text-left items-start" },
-  { value: "center", label: "Centro", icon: AlignCenter, className: "text-center items-center" },
-  { value: "right", label: "Direita", icon: AlignRight, className: "text-right items-end" },
+  { value: "left", label: "Esquerda", icon: AlignLeft },
+  { value: "center", label: "Centro", icon: AlignCenter },
+  { value: "right", label: "Direita", icon: AlignRight },
 ] as const;
+
+const BORDER_STYLES = [
+  { value: "solid", label: "Sólida" },
+  { value: "dashed", label: "Tracejada" },
+  { value: "dotted", label: "Pontilhada" },
+  { value: "double", label: "Dupla" },
+] as const;
+
+type ElementKey = "tag" | "title" | "subtitle" | "price";
+
+const ELEMENTS: { value: ElementKey; label: string }[] = [
+  { value: "tag", label: "Tag" },
+  { value: "title", label: "Título" },
+  { value: "subtitle", label: "Subtítulo" },
+  { value: "price", label: "Preço" },
+];
+
+const BASE_SIZE: Record<ElementKey, number> = { tag: 10, title: 26, subtitle: 12, price: 32 };
+
+type Pos = { x: number; y: number };
+type ElementLayout = { scale: number; color: string | null } & Pos;
+
+type Layout = {
+  elements: Record<ElementKey, ElementLayout>;
+  image: Pos;
+  show_image: boolean;
+  frame: { enabled: boolean; color: string; width: number; style: string };
+};
+
+const defaultLayout: Layout = {
+  elements: {
+    tag: { scale: 1, color: null, x: 50, y: 10 },
+    title: { scale: 1, color: null, x: 50, y: 23 },
+    subtitle: { scale: 1, color: null, x: 50, y: 34 },
+    price: { scale: 1, color: null, x: 50, y: 84 },
+  },
+  image: { x: 50, y: 58 },
+  show_image: true,
+  frame: { enabled: false, color: "#ffffff", width: 6, style: "solid" },
+};
+
+function normalizeLayout(raw: unknown): Layout {
+  const source = (raw ?? {}) as Partial<Layout>;
+  const elements = { ...defaultLayout.elements };
+  for (const key of Object.keys(elements) as ElementKey[]) {
+    const el = source.elements?.[key];
+    elements[key] = {
+      scale: Number(el?.scale ?? defaultLayout.elements[key].scale),
+      color: el?.color ?? null,
+      x: Number(el?.x ?? defaultLayout.elements[key].x),
+      y: Number(el?.y ?? defaultLayout.elements[key].y),
+    };
+  }
+  return {
+    elements,
+    image: {
+      x: Number(source.image?.x ?? defaultLayout.image.x),
+      y: Number(source.image?.y ?? defaultLayout.image.y),
+    },
+    show_image: source.show_image ?? true,
+    frame: {
+      enabled: source.frame?.enabled ?? false,
+      color: source.frame?.color ?? "#ffffff",
+      width: Number(source.frame?.width ?? 6),
+      style: source.frame?.style ?? "solid",
+    },
+  };
+}
 
 type ArtForm = {
   id?: string;
@@ -100,6 +172,7 @@ type ArtForm = {
   image_border: boolean;
   image_border_color: string;
   image_border_width: number;
+  layout: Layout;
 };
 
 const emptyArt: ArtForm = {
@@ -123,8 +196,8 @@ const emptyArt: ArtForm = {
   image_border: false,
   image_border_color: "#ffffff",
   image_border_width: 4,
+  layout: defaultLayout,
 };
-
 
 function OptionRow<T extends string>({
   label,
@@ -172,6 +245,7 @@ function ArtesPage() {
   const { data: arts = [] } = useArts(store?.id);
   const mutations = useArtMutations(store?.id);
   const [art, setArt] = useState<ArtForm>(emptyArt);
+  const [selected, setSelected] = useState<ElementKey>("title");
   const [downloading, setDownloading] = useState<string | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const hiddenRef = useRef<HTMLDivElement>(null);
@@ -180,6 +254,28 @@ function ArtesPage() {
   const favorites = useMemo(() => arts.filter((a) => a.is_favorite), [arts]);
   const set = <K extends keyof ArtForm>(key: K, value: ArtForm[K]) =>
     setArt((prev) => ({ ...prev, [key]: value }));
+
+  const setLayout = (patch: (layout: Layout) => Layout) =>
+    setArt((prev) => ({ ...prev, layout: patch(prev.layout) }));
+
+  const setElement = (key: ElementKey, patch: Partial<ElementLayout>) =>
+    setLayout((layout) => ({
+      ...layout,
+      elements: { ...layout.elements, [key]: { ...layout.elements[key], ...patch } },
+    }));
+
+  const setFrame = (patch: Partial<Layout["frame"]>) =>
+    setLayout((layout) => ({ ...layout, frame: { ...layout.frame, ...patch } }));
+
+  const movePart = (part: ElementKey | "image", pos: Pos) =>
+    setLayout((layout) =>
+      part === "image"
+        ? { ...layout, image: pos }
+        : {
+            ...layout,
+            elements: { ...layout.elements, [part]: { ...layout.elements[part], ...pos } },
+          },
+    );
 
   const applyProduct = (id: string) => {
     const product = products.find((p) => p.id === id);
@@ -216,8 +312,8 @@ function ArtesPage() {
     image_border: a.image_border ?? false,
     image_border_color: a.image_border_color ?? "#ffffff",
     image_border_width: Number(a.image_border_width ?? 4),
+    layout: normalizeLayout(a.layout),
   });
-
 
   const download = async () => {
     if (!previewRef.current) return;
@@ -270,7 +366,7 @@ function ArtesPage() {
         image_border: art.image_border,
         image_border_color: art.image_border_color,
         image_border_width: art.image_border_width,
-
+        layout: art.layout as unknown as Record<string, unknown>,
         show_link: art.show_link,
         image_url: art.image_url,
         ...(favorite ? { is_favorite: true } : {}),
@@ -282,12 +378,15 @@ function ArtesPage() {
     }
   };
 
+  const selectedEl = art.layout.elements[selected];
+  const selectedLabel = ELEMENTS.find((e) => e.value === selected)?.label ?? "";
+
   return (
     <div className="mx-auto max-w-6xl">
       <div>
         <h1 className="text-2xl font-extrabold">Gerador de Artes 1-Clique</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Escolha o formato, ajuste textos e cores e baixe pronto para publicar.
+          Escolha o formato, arraste os textos no preview e baixe pronto para publicar.
         </p>
       </div>
 
@@ -367,9 +466,15 @@ function ArtesPage() {
               options={SHAPES}
               onChange={(v) => set("format_shape", v)}
             />
+            <OptionRow
+              label="Alinhamento do texto"
+              value={art.text_align}
+              options={ALIGNMENTS}
+              onChange={(v) => set("text_align", v)}
+            />
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="a-text-scale">Tamanho das letras</Label>
+                <Label htmlFor="a-text-scale">Tamanho geral das letras</Label>
                 <span className="text-xs font-semibold text-muted-foreground">
                   {Math.round(art.text_scale * 100)}%
                 </span>
@@ -377,35 +482,188 @@ function ArtesPage() {
               <Slider
                 id="a-text-scale"
                 min={0.6}
-                max={2}
+                max={2.5}
                 step={0.05}
                 value={[art.text_scale]}
                 onValueChange={([v]: number[]) => set("text_scale", v ?? 1)}
               />
             </div>
+          </div>
+
+          <div className="surface-card space-y-4 p-5">
+            <div className="flex items-center gap-2">
+              <Type className="size-4 text-primary" />
+              <h2 className="text-sm font-bold">Editar um texto específico</h2>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Escolha aqui (ou clique direto no preview) e arraste o texto na arte para mudar o
+              lugar.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {ELEMENTS.map((el) => (
+                <button
+                  key={el.value}
+                  type="button"
+                  onClick={() => setSelected(el.value)}
+                  aria-pressed={selected === el.value}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+                    selected === el.value
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground hover:bg-muted",
+                  )}
+                >
+                  {el.label}
+                </button>
+              ))}
+            </div>
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="a-img-scale">Tamanho da foto</Label>
+                <Label htmlFor="a-el-scale">Tamanho das letras — {selectedLabel}</Label>
                 <span className="text-xs font-semibold text-muted-foreground">
-                  {Math.round(art.image_scale * 100)}%
+                  {Math.round(selectedEl.scale * 100)}%
                 </span>
               </div>
               <Slider
-                id="a-img-scale"
-                min={0.2}
-                max={1}
-                step={0.02}
-                value={[art.image_scale]}
-                onValueChange={([v]: number[]) => set("image_scale", v ?? 0.6)}
+                id="a-el-scale"
+                min={0.5}
+                max={3}
+                step={0.05}
+                value={[selectedEl.scale]}
+                onValueChange={([v]: number[]) => setElement(selected, { scale: v ?? 1 })}
               />
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="a-el-color">Cor do {selectedLabel.toLowerCase()}</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="a-el-color"
+                  type="color"
+                  value={selectedEl.color ?? art.text_color}
+                  onChange={(e) => setElement(selected, { color: e.target.value })}
+                  className="size-10 shrink-0 cursor-pointer rounded-lg border border-border"
+                />
+                <Input
+                  value={selectedEl.color ?? ""}
+                  placeholder="usa a cor geral"
+                  onChange={(e) => setElement(selected, { color: e.target.value || null })}
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="Voltar à cor geral"
+                  onClick={() => setElement(selected, { color: null })}
+                >
+                  <RotateCcw className="size-4" />
+                </Button>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setElement(selected, {
+                  x: defaultLayout.elements[selected].x,
+                  y: defaultLayout.elements[selected].y,
+                })
+              }
+            >
+              <Move className="size-4" />
+              Voltar posição do {selectedLabel.toLowerCase()}
+            </Button>
+          </div>
 
-            <OptionRow
-              label="Alinhamento do texto"
-              value={art.text_align}
-              options={ALIGNMENTS}
-              onChange={(v) => set("text_align", v)}
-            />
+          <div className="surface-card space-y-4 p-5">
+            <h2 className="text-sm font-bold">Foto do produto</h2>
+            <div className="flex items-center justify-between rounded-xl border border-border p-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Mostrar a foto na arte</p>
+                <p className="text-xs text-muted-foreground">
+                  Desligue para uma arte só com texto.
+                </p>
+              </div>
+              <Switch
+                checked={art.layout.show_image}
+                onCheckedChange={(v) => setLayout((l) => ({ ...l, show_image: v }))}
+              />
+            </div>
+            {art.layout.show_image && (
+              <>
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="a-img-scale">Tamanho da foto</Label>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      {Math.round(art.image_scale * 100)}%
+                    </span>
+                  </div>
+                  <Slider
+                    id="a-img-scale"
+                    min={0.2}
+                    max={1}
+                    step={0.02}
+                    value={[art.image_scale]}
+                    onValueChange={([v]: number[]) => set("image_scale", v ?? 0.6)}
+                  />
+                </div>
+                <div className="flex items-center justify-between rounded-xl border border-border p-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">Borda na foto</p>
+                    <p className="text-xs text-muted-foreground">Moldura em volta da imagem.</p>
+                  </div>
+                  <Switch checked={art.image_border} onCheckedChange={(v) => set("image_border", v)} />
+                </div>
+                {art.image_border && (
+                  <div className="grid gap-4 rounded-xl border border-border p-3 sm:grid-cols-2">
+                    <div className="grid gap-2">
+                      <Label htmlFor="a-bd-color">Cor da borda da foto</Label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          id="a-bd-color"
+                          type="color"
+                          value={art.image_border_color}
+                          onChange={(e) => set("image_border_color", e.target.value)}
+                          className="size-10 shrink-0 cursor-pointer rounded-lg border border-border"
+                        />
+                        <Input
+                          value={art.image_border_color}
+                          onChange={(e) => set("image_border_color", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="a-bd-width">Espessura</Label>
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          {art.image_border_width}px
+                        </span>
+                      </div>
+                      <Slider
+                        id="a-bd-width"
+                        min={1}
+                        max={20}
+                        step={1}
+                        value={[art.image_border_width]}
+                        onValueChange={([v]: number[]) => set("image_border_width", v ?? 4)}
+                      />
+                    </div>
+                  </div>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLayout((l) => ({ ...l, image: defaultLayout.image }))}
+                >
+                  <Move className="size-4" />
+                  Voltar posição da foto
+                </Button>
+              </>
+            )}
+            {!art.layout.show_image && (
+              <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                <ImageOff className="size-4" />
+                A arte está sem foto do produto.
+              </p>
+            )}
           </div>
 
           <div className="surface-card space-y-4 p-5">
@@ -442,7 +700,7 @@ function ArtesPage() {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="a-text-color">Cor da letra</Label>
+                <Label htmlFor="a-text-color">Cor geral da letra</Label>
                 <div className="flex items-center gap-2">
                   <input
                     id="a-text-color"
@@ -479,49 +737,6 @@ function ArtesPage() {
             </div>
             <div className="flex items-center justify-between rounded-xl border border-border p-3">
               <div className="min-w-0">
-                <p className="text-sm font-semibold">Borda na foto</p>
-                <p className="text-xs text-muted-foreground">Moldura em volta da imagem do produto.</p>
-              </div>
-              <Switch checked={art.image_border} onCheckedChange={(v) => set("image_border", v)} />
-            </div>
-            {art.image_border && (
-              <div className="grid gap-4 rounded-xl border border-border p-3 sm:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="a-bd-color">Cor da borda</Label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      id="a-bd-color"
-                      type="color"
-                      value={art.image_border_color}
-                      onChange={(e) => set("image_border_color", e.target.value)}
-                      className="size-10 shrink-0 cursor-pointer rounded-lg border border-border"
-                    />
-                    <Input
-                      value={art.image_border_color}
-                      onChange={(e) => set("image_border_color", e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="a-bd-width">Espessura da borda</Label>
-                    <span className="text-xs font-semibold text-muted-foreground">
-                      {art.image_border_width}px
-                    </span>
-                  </div>
-                  <Slider
-                    id="a-bd-width"
-                    min={1}
-                    max={20}
-                    step={1}
-                    value={[art.image_border_width]}
-                    onValueChange={([v]: number[]) => set("image_border_width", v ?? 4)}
-                  />
-                </div>
-              </div>
-            )}
-            <div className="flex items-center justify-between rounded-xl border border-border p-3">
-              <div className="min-w-0">
                 <p className="text-sm font-semibold">Mostrar link da vitrine</p>
                 <p className="text-xs text-muted-foreground">
                   Exibe /{store?.slug ?? "sua-loja"} no rodapé da arte.
@@ -531,6 +746,75 @@ function ArtesPage() {
             </div>
           </div>
 
+          <div className="surface-card space-y-4 p-5">
+            <h2 className="text-sm font-bold">Borda da arte</h2>
+            <div className="flex items-center justify-between rounded-xl border border-border p-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Ativar moldura</p>
+                <p className="text-xs text-muted-foreground">
+                  Uma borda em volta de todo o formato da arte.
+                </p>
+              </div>
+              <Switch
+                checked={art.layout.frame.enabled}
+                onCheckedChange={(v) => setFrame({ enabled: v })}
+              />
+            </div>
+            {art.layout.frame.enabled && (
+              <div className="grid gap-4 rounded-xl border border-border p-3 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="a-fr-color">Cor da moldura</Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="a-fr-color"
+                      type="color"
+                      value={art.layout.frame.color}
+                      onChange={(e) => setFrame({ color: e.target.value })}
+                      className="size-10 shrink-0 cursor-pointer rounded-lg border border-border"
+                    />
+                    <Input
+                      value={art.layout.frame.color}
+                      onChange={(e) => setFrame({ color: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="a-fr-style">Tipo de borda</Label>
+                  <Select
+                    value={art.layout.frame.style}
+                    onValueChange={(v) => setFrame({ style: v })}
+                  >
+                    <SelectTrigger id="a-fr-style">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BORDER_STYLES.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>
+                          {s.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2 sm:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="a-fr-width">Espessura da moldura</Label>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      {art.layout.frame.width}px
+                    </span>
+                  </div>
+                  <Slider
+                    id="a-fr-width"
+                    min={1}
+                    max={30}
+                    step={1}
+                    value={[art.layout.frame.width]}
+                    onValueChange={([v]: number[]) => setFrame({ width: v ?? 6 })}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
 
           {favorites.length > 0 && (
             <div className="surface-card space-y-3 p-5">
@@ -549,7 +833,19 @@ function ArtesPage() {
 
         <section className="lg:sticky lg:top-20 lg:h-fit">
           <div className="mx-auto w-full max-w-[320px] space-y-4">
-            <ArtCanvas ref={previewRef} art={art} storeName={store?.name} storeSlug={store?.slug} />
+            <ArtCanvas
+              ref={previewRef}
+              art={art}
+              storeName={store?.name}
+              storeSlug={store?.slug}
+              editable
+              selected={selected}
+              onSelect={setSelected}
+              onMove={movePart}
+            />
+            <p className="text-center text-[11px] text-muted-foreground">
+              Clique num texto para selecionar e arraste para posicionar.
+            </p>
             <div className="flex flex-wrap gap-2">
               <Button className="flex-1" onClick={download} disabled={downloading === "current"}>
                 {downloading === "current" ? (
@@ -659,80 +955,159 @@ function ArtCanvas({
   art,
   storeName,
   storeSlug,
+  editable = false,
+  selected,
+  onSelect,
+  onMove,
 }: {
   ref: React.Ref<HTMLDivElement>;
   art: ArtForm;
   storeName?: string | undefined;
   storeSlug?: string | undefined;
+  editable?: boolean;
+  selected?: ElementKey;
+  onSelect?: (key: ElementKey) => void;
+  onMove?: (part: ElementKey | "image", pos: Pos) => void;
 }) {
   const shape = SHAPES.find((s) => s.value === art.format_shape) ?? SHAPES[1];
-  const align = ALIGNMENTS.find((a) => a.value === art.text_align) ?? ALIGNMENTS[1];
+  const layout = art.layout;
+  const textAlign = art.text_align as "left" | "center" | "right";
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const startDrag = (part: ElementKey | "image") => (event: React.PointerEvent) => {
+    if (!editable || !onMove) return;
+    if (part !== "image" && onSelect) onSelect(part as ElementKey);
+    const box = containerRef.current?.getBoundingClientRect();
+    if (!box) return;
+    event.preventDefault();
+    const target = event.currentTarget as HTMLElement;
+    target.setPointerCapture(event.pointerId);
+    const move = (e: PointerEvent) => {
+      const x = Math.min(98, Math.max(2, ((e.clientX - box.left) / box.width) * 100));
+      const y = Math.min(98, Math.max(2, ((e.clientY - box.top) / box.height) * 100));
+      onMove(part, { x, y });
+    };
+    const up = () => {
+      target.removeEventListener("pointermove", move);
+      target.removeEventListener("pointerup", up);
+    };
+    target.addEventListener("pointermove", move);
+    target.addEventListener("pointerup", up);
+  };
+
+  const outline = art.text_outline
+    ? { WebkitTextStroke: "0.5px rgba(0,0,0,0.85)", paintOrder: "stroke fill" as const }
+    : {};
+
+  const partStyle = (key: ElementKey): React.CSSProperties => ({
+    position: "absolute",
+    left: `${layout.elements[key].x}%`,
+    top: `${layout.elements[key].y}%`,
+    transform: "translate(-50%, -50%)",
+    width: "88%",
+    textAlign,
+    color: layout.elements[key].color ?? art.text_color,
+    fontSize: `${BASE_SIZE[key] * layout.elements[key].scale * art.text_scale}px`,
+    ...outline,
+  });
+
+  const partClass = (key: ElementKey) =>
+    cn(
+      editable && "cursor-move touch-none rounded-md ring-offset-1",
+      editable && selected === key && "ring-2 ring-white/70",
+    );
 
   return (
     <div
       ref={ref}
       className="relative w-full overflow-hidden rounded-2xl shadow-lg"
-      style={{ backgroundColor: art.bg_color, aspectRatio: shape.ratio, color: art.text_color }}
+      style={{
+        backgroundColor: art.bg_color,
+        aspectRatio: shape.ratio,
+        color: art.text_color,
+        boxSizing: "border-box",
+        ...(layout.frame.enabled
+          ? { border: `${layout.frame.width}px ${layout.frame.style} ${layout.frame.color}` }
+          : {}),
+      }}
     >
-      <div
-        className={cn("flex h-full flex-col justify-center gap-3 p-6", align.className)}
-        style={{
-          fontSize: `${art.text_scale}em`,
-          ...(art.text_outline
-            ? { WebkitTextStroke: `0.5px rgba(0,0,0,0.85)`, paintOrder: "stroke fill" }
-            : {}),
-        }}
-      >
+      <div ref={containerRef} className="absolute inset-0">
         {art.tag && (
-          <span
-            className="inline-flex rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase"
-            style={{ backgroundColor: `${art.text_color}26` }}
+          <div
+            style={partStyle("tag")}
+            className={partClass("tag")}
+            onPointerDown={startDrag("tag")}
           >
-            {art.tag}
-          </span>
-        )}
-        <h2
-          className="text-2xl leading-tight font-extrabold"
-          style={{ fontFamily: art.title_font }}
-        >
-          {art.title}
-        </h2>
-        {art.subtitle && (
-          <p className="text-xs opacity-85" style={{ fontFamily: art.title_font }}>
-            {art.subtitle}
-          </p>
+            <span
+              className="inline-flex rounded-full px-3 py-1 font-bold tracking-widest uppercase"
+              style={{ backgroundColor: `${art.text_color}26` }}
+            >
+              {art.tag}
+            </span>
+          </div>
         )}
 
-        {art.image_url && (
+        <div
+          style={{ ...partStyle("title"), fontFamily: art.title_font }}
+          className={cn("leading-tight font-extrabold", partClass("title"))}
+          onPointerDown={startDrag("title")}
+        >
+          {art.title}
+        </div>
+
+        {art.subtitle && (
           <div
-            className="overflow-hidden rounded-2xl"
+            style={{ ...partStyle("subtitle"), fontFamily: art.title_font }}
+            className={cn("opacity-85", partClass("subtitle"))}
+            onPointerDown={startDrag("subtitle")}
+          >
+            {art.subtitle}
+          </div>
+        )}
+
+        {layout.show_image && art.image_url && (
+          <div
+            className={cn("overflow-hidden rounded-2xl", editable && "cursor-move touch-none")}
             style={{
+              position: "absolute",
+              left: `${layout.image.x}%`,
+              top: `${layout.image.y}%`,
+              transform: "translate(-50%, -50%)",
               width: `${Math.round(art.image_scale * 100)}%`,
               ...(art.image_border
                 ? { border: `${art.image_border_width}px solid ${art.image_border_color}` }
                 : {}),
             }}
+            onPointerDown={startDrag("image")}
           >
             <StorageImage
               path={art.image_url}
               alt={art.title}
-              className="aspect-square w-full object-cover"
+              className="pointer-events-none aspect-square w-full object-cover"
             />
           </div>
         )}
 
-        <div style={{ fontFamily: art.price_font }}>
+        <div
+          style={{ ...partStyle("price"), fontFamily: art.price_font }}
+          className={partClass("price")}
+          onPointerDown={startDrag("price")}
+        >
           {art.old_price_text && (
-            <p className="text-xs opacity-75 line-through">De: {art.old_price_text}</p>
+            <p className="line-through opacity-75" style={{ fontSize: "0.4em" }}>
+              De: {art.old_price_text}
+            </p>
           )}
-          <p className="text-3xl font-extrabold">
+          <p className="font-extrabold">
             {art.old_price_text ? `Por: ${art.price_text}` : art.price_text}
           </p>
         </div>
       </div>
 
-
-      <div className={cn("absolute inset-x-6 bottom-4 text-[10px] opacity-80", align.className)}>
+      <div
+        className="absolute inset-x-6 bottom-4 text-[10px] opacity-80"
+        style={{ textAlign }}
+      >
         <p className="font-bold">{storeName}</p>
         {art.show_link && storeSlug && <p>vitrine: /{storeSlug}</p>}
       </div>
