@@ -366,7 +366,7 @@ function ArtesPage() {
         image_border: art.image_border,
         image_border_color: art.image_border_color,
         image_border_width: art.image_border_width,
-        layout: art.layout as unknown as Record<string, unknown>,
+        layout: JSON.parse(JSON.stringify(art.layout)),
         show_link: art.show_link,
         image_url: art.image_url,
         ...(favorite ? { is_favorite: true } : {}),
