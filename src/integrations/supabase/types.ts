@@ -126,6 +126,7 @@ export type Database = {
           image_shape: string | null
           image_url: string | null
           is_favorite: boolean
+          layout: Json
           name: string
           price_font: string
           price_text: string
@@ -152,6 +153,7 @@ export type Database = {
           image_shape?: string | null
           image_url?: string | null
           is_favorite?: boolean
+          layout?: Json
           name?: string
           price_font?: string
           price_text?: string
@@ -178,6 +180,7 @@ export type Database = {
           image_shape?: string | null
           image_url?: string | null
           is_favorite?: boolean
+          layout?: Json
           name?: string
           price_font?: string
           price_text?: string
